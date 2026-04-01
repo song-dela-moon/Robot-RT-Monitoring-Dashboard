@@ -1,0 +1,20 @@
+CREATE TABLE IF NOT EXISTS robot_logs (
+    id            BIGINT AUTO_INCREMENT PRIMARY KEY,
+    robot_id      VARCHAR(50)  NOT NULL,
+    cpu_usage     DOUBLE       NOT NULL,
+    mem_used      BIGINT       NOT NULL,
+    mem_total     BIGINT       NOT NULL,
+    procs_running INT          NOT NULL,
+    procs_blocked INT          NOT NULL,
+    priority      INT          NOT NULL,
+    pos_x         DOUBLE       NOT NULL,
+    pos_y         DOUBLE       NOT NULL,
+    pos_z         DOUBLE       NOT NULL,
+    vel_linear_x  DOUBLE       NOT NULL,
+    vel_linear_y  DOUBLE       NOT NULL,
+    vel_angular_z DOUBLE       NOT NULL,
+    ros_frame_id  VARCHAR(100) NOT NULL,
+    ros_topic     VARCHAR(100) NOT NULL,
+    recorded_at   DATETIME(3)  NOT NULL,
+    INDEX idx_robot_time (robot_id, recorded_at)
+);
