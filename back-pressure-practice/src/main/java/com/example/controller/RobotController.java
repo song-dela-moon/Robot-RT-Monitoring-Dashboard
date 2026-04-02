@@ -60,10 +60,13 @@ public class RobotController {
      * daily: from = 오늘 시작, to = 현재
      * weekly: from = 7일 전, to = 지금
      * monthly: from = 30일 전, to = 지금
+     *
+     *
      */
     @GetMapping(value = "/{robotId}/logs", produces = MediaType.APPLICATION_JSON_VALUE)
     public Flux<RobotLog> getLogs(
-            @PathVariable String robotId,
+            @PathVariable String robotId, // url에서 robotId에서 추출
+            // LocalDateTime 객체로 자동 변환
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime from,
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime to) {
 
@@ -89,6 +92,7 @@ public class RobotController {
             @PathVariable String robotId,
             @RequestParam(defaultValue = "3") int minPriority) {
 
+        // 연결 시작시 로그 출력
         log.info("[ROBOT-SSE] New subscriber robotId={} minPriority={}", robotId, minPriority);
 
         return sseService.streamFor(robotId)
@@ -99,6 +103,7 @@ public class RobotController {
                         .event("robot-log")
                         .data(event)
                         .build())
+                // 연결 종료 시 로그 출력
                 .doOnCancel(() -> log.info("[ROBOT-SSE] Client disconnected robotId={}", robotId));
     }
 }

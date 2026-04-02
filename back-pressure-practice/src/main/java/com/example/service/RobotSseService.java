@@ -57,12 +57,15 @@ public class RobotSseService {
      * @param event 저장된 로봇 로그 이벤트
      */
     public void pushEvent(RobotLogEvent event) {
+        // 해당 robotId의 구독자에게 해당 정보를 전달
         Sinks.EmitResult result = getOrCreateSink(event.robotId()).tryEmitNext(event);
+        // 현재 구독자가 없는 경우
         if (result.isFailure()) {
             log.debug("[SSE-BP] emit failed robotId={} result={}", event.robotId(), result);
         }
     }
 
+    // 파이프 라인
     private Sinks.Many<RobotLogEvent> getOrCreateSink(String robotId) {
         return sinks.computeIfAbsent(robotId, id ->
                 Sinks.many().multicast().onBackpressureBuffer(256, false));
