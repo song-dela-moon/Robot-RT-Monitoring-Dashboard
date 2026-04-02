@@ -15,6 +15,54 @@
 *   **Aging (기아 방지)**: Q3/Q4/Q5 항목이 10초 이상 대기 시 자동으로 Q2로 승격합니다. 최대 승격 레벨은 P2로 고정하여 P1 슬롯을 보호합니다.
 *   **Zone 1 (DB → SSE)**: `onBackpressureBuffer(256, DROP_OLDEST)` 전략을 통해 클라이언트의 수신 속도가 느릴 경우 최신 데이터를 우선적으로 전달합니다.
 
+#### 📊 데이터 흐름 및 DB Backpressure 아키텍처
+```mermaid
+flowchart TD
+    subgraph Publisher
+        G((Dummy Data Generator))
+        style G fill:#f9f
+    end
+
+    subgraph MultiLayerBuffer
+        direction TB
+        
+        G -->|우선순위 1| Q1[Q1: P1 Max 256]
+        G -->|우선순위 2| Q2[Q2: P2 Max 128]
+        G -->|우선순위 3| Q3[Q3: P3 Max 64]
+        G -->|우선순위 4| Q4[Q4: P4 Max 64]
+        G -->|우선순위 5| Q5[Q5: P5 Max 32]
+        
+        Q3 -.->|대기 10초 초과 Aging| Q2
+        Q4 -.->|대기 10초 초과 Aging| Q2
+        Q5 -.->|대기 10초 초과 Aging| Q2
+
+        Q1 -- 큐 꽉 참 --> OV[Overflow 큐 Max 64]
+        Q2 -- 큐 꽉 참 --> OV
+        Q3 -- 큐 꽉 참 --> OV
+        Q4 -- 큐 꽉 참 --> OV
+        Q5 -- 큐 꽉 참 --> OV
+        
+        OV -- 오버플로우마저 실패 --> Drop((최종 DROP Drop Latest))
+        style Drop fill:#ff6666
+    end
+
+    subgraph Consumer
+        Poll{consumeFlux 50ms Polling}
+        DB[(DB Save 동시성 4 제어)]
+        SSE[SSE Hot Sinks 프론트 전송]
+    end
+
+    Q1 ====>|1순위 탐색| Poll
+    Q2 ====>|2순위 탐색| Poll
+    OV ====>|3순위 탐색| Poll
+    Q3 -->|4순위 탐색| Poll
+    Q4 -->|5순위 탐색| Poll
+    Q5 -->|6순위 탐색| Poll
+
+    Poll -->|저장| DB
+    DB -->|알림| SSE
+```
+
 ### 4. 테스트 시나리오 (자동 실행)
 
 실시간 생성기 시작 후 아래 시나리오가 자동으로 순서대로 실행됩니다.
