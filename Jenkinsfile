@@ -39,7 +39,6 @@ pipeline {
                                 -Dsonar.sources=src/main/java \
                                 -Dsonar.java.binaries=build/classes/java/main \
                                 -Dsonar.coverage.jacoco.xmlReportPaths=build/reports/jacoco/test/jacocoTestReport.xml \
-                                -Dsonar.host.url=http://172.21.33.69:8255 \
                                 -Dsonar.login=${SONAR_AUTH_TOKEN}
                             """
                         }
