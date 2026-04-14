@@ -1,0 +1,34 @@
+version: '3.8'
+
+services:
+  backend:
+    image: ${BE_IMAGE:-robot-backend:latest}
+    container_name: robot-backend-${STACK:-blue}
+    restart: always
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:mysql://robot-mysql:3306/robot_monitor?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
+      - SPRING_DATASOURCE_USERNAME=${DB_USER:-robot_user}
+      - SPRING_DATASOURCE_PASSWORD=${DB_PASSWORD:-1234}
+      - SPRING_R2DBC_URL=r2dbc:mysql://robot-mysql:3306/robot_monitor?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
+      - SPRING_R2DBC_USERNAME=${DB_USER:-robot_user}
+      - SPRING_R2DBC_PASSWORD=${DB_PASSWORD:-1234}
+      - SPRING_SQL_INIT_MODE=always
+    ports:
+      - "${BE_PORT:-20881}:8080"
+    networks:
+      - robot-network
+
+  frontend:
+    image: ${FE_IMAGE:-robot-frontend:latest}
+    container_name: robot-frontend-${STACK:-blue}
+    restart: always
+    environment:
+      - BACKEND_URL=http://robot-backend-${STACK:-blue}:8080
+    ports:
+      - "${FE_PORT:-20301}:3000"
+    networks:
+      - robot-network
+
+networks:
+  robot-network:
+    external: true

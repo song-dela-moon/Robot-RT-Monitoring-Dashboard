@@ -12,7 +12,7 @@ export default function RobotSelector({ selected, onSelect }: Props) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch('http://localhost:8080/api/robots')
+    fetch('/api/robots')
       .then(r => r.json())
       .then((data: string[]) => {
         setRobots(data);

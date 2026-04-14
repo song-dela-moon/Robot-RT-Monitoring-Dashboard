@@ -1,0 +1,27 @@
+version: '3.8'
+
+services:
+  mysql:
+    extends:
+      file: docker/infrastructure.yml
+      service: mysql
+    networks:
+      - junkyu-network
+
+  nginx:
+    image: nginx:latest
+    container_name: junkyu-nginx
+    restart: always
+    ports:
+      - "20080:80"
+      - "20443:443"
+    volumes:
+      - ./nginx/conf.d:/etc/nginx/conf.d
+    networks:
+      - junkyu-network
+    depends_on:
+      - mysql
+
+networks:
+  junkyu-network:
+    external: true

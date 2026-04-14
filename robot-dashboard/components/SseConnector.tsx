@@ -26,7 +26,7 @@ export default function SseConnector({ robotId, onEvent, onConnect, onDisconnect
       onDisconnect();
     }
 
-    const url = `http://localhost:8080/api/robots/${robotId}/stream?minPriority=5`;
+    const url = `/api/robots/${robotId}/stream?minPriority=5`;
     const es = new EventSource(url);
     esRef.current = es;
 

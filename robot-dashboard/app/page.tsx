@@ -46,7 +46,7 @@ export default function Home() {
     const { from, to } = getDateRange();
     setLoading(true);
     setRealtimeLogs([]);
-    fetch(`http://localhost:8080/api/robots/${selectedRobot}/logs?from=${from}&to=${to}`)
+    fetch(`/api/robots/${selectedRobot}/logs?from=${from}&to=${to}`)
       .then(r => r.json())
       .then((data: RobotLog[]) => setHistoricalLogs(data))
       .catch(console.error)

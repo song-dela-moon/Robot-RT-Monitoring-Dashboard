@@ -1,0 +1,36 @@
+version: '3.8'
+
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: robot-mysql
+    restart: always
+    environment:
+      MYSQL_DATABASE: robot_monitor
+      MYSQL_USER: ${DB_USER:-robot_user}
+      MYSQL_PASSWORD: ${DB_PASSWORD:-1234}
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD:-1234}
+    ports:
+      - "3306:3306"
+    volumes:
+      - robot_mysql_data:/var/lib/mysql
+    networks:
+      - robot-network
+
+  nginx:
+    image: nginx:alpine
+    container_name: robot-nginx
+    restart: always
+    ports:
+      - "8080:80"
+    volumes:
+      - /opt/robot_deploy/nginx/conf.d:/etc/nginx/conf.d
+    networks:
+      - robot-network
+
+volumes:
+  robot_mysql_data:
+
+networks:
+  robot-network:
+    external: true
