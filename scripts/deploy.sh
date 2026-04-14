@@ -35,7 +35,13 @@ REPO_ROOT="$(cd "${SCRIPT_DIR}/.." && pwd)"
 
 mkdir -p "${DOCKER_DIR}"
 mkdir -p "${NGINX_CONF_DIR}"
-touch "${NGINX_UPSTREAM_FILE}"  # Ensure file exists to prevent Nginx startup failure
+touch "${NGINX_UPSTREAM_FILE}" 
+if [[ ! -s "${NGINX_UPSTREAM_FILE}" ]]; then
+  cat <<EOF > "${NGINX_UPSTREAM_FILE}"
+upstream backend_servers { server 127.0.0.1:8211; }
+upstream frontend_servers { server 127.0.0.1:8221; }
+EOF
+fi
 cp -f "${REPO_ROOT}/docker/app-stack.yml"       "${DOCKER_DIR}/app-stack.yml"
 cp -f "${REPO_ROOT}/nginx/conf.d/default.conf"  "${NGINX_CONF_DIR}/default.conf"
 
