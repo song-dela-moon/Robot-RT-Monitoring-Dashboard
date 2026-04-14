@@ -15,10 +15,10 @@ COMPOSE_APP_FILE="${DOCKER_DIR}/app-stack.yml"
 NETWORK_NAME="robot-network"
 
 # --- Port Assignments ---
-BLUE_BE_PORT=20881
-BLUE_FE_PORT=20301
-GREEN_BE_PORT=20882
-GREEN_FE_PORT=20302
+BLUE_BE_PORT=8211
+BLUE_FE_PORT=8221
+GREEN_BE_PORT=8212
+GREEN_FE_PORT=8222
 
 # --- Validate Required Env Vars ---
 : "${BE_IMAGE:?Error: BE_IMAGE env var is required}"
@@ -117,5 +117,5 @@ docker-compose -f "${COMPOSE_APP_FILE}" --project-name "robot_${OLD_STACK}" down
 echo ""
 echo "=========================================="
 echo " ✅ Done! Active: ${TARGET_STACK}"
-echo "    Access: http://localhost:8080"
+echo "    Access: http://localhost:8200"
 echo "=========================================="

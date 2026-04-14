@@ -11,7 +11,7 @@ services:
       MYSQL_PASSWORD: ${DB_PASSWORD:-1234}
       MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD:-1234}
     ports:
-      - "3306:3306"
+      - "8206:3306"
     volumes:
       - robot_mysql_data:/var/lib/mysql
     networks:
@@ -22,7 +22,7 @@ services:
     container_name: robot-nginx
     restart: always
     ports:
-      - "8080:80"
+      - "8200:80"
     volumes:
       - /opt/robot_deploy/nginx/conf.d:/etc/nginx/conf.d
     networks:
