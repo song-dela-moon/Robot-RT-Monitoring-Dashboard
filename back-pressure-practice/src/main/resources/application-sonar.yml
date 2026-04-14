@@ -1,0 +1,13 @@
+spring:
+  config:
+    activate:
+      on-profile: sonar  # 'sonar' profiling
+
+  r2dbc:
+    url: r2dbc:postgresql://172.21.33.69:8253/sonarqube
+    username: sonar
+    password: sonar
+
+  sql:
+    init:
+      mode: never # not create table
