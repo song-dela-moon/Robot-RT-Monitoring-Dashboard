@@ -42,7 +42,7 @@ pipeline {
                             ./gradlew sonar \
                             -Dsonar.projectKey=sw_team_3_robot_backend \
                             -Dsonar.projectName="Team 3 Robot Backend" \
-                            -Dsonar.java.binaries=build/classes \
+                            -Dsonar.java.binaries=build/classes/java/main \
                             -Dsonar.coverage.jacoco.xmlReportPaths=build/reports/jacoco/test/jacocoTestReport.xml
                         '''
                     }

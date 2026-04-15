@@ -49,7 +49,7 @@ public class RobotDummyDataService implements CommandLineRunner {
         this.sseService = sseService;
     }
 
-    private enum ScenarioPhase {
+    enum ScenarioPhase {
         NORMAL,      // 평시 (균등 분포)
         P1_BURST,    // P1 급증 (CPU > 85%)
         FLOOD,       // 데이터 대량 발생 (초당 10개씩)
@@ -76,7 +76,7 @@ public class RobotDummyDataService implements CommandLineRunner {
                 .subscribe(priorityQueue::enqueue);
     }
 
-    private ScenarioPhase getCurrentPhase(long tick) {
+    ScenarioPhase getCurrentPhase(long tick) {
         // 20초마다 시나리오 전환 (80초 주기)
         int idx = (int) ((tick / 20) % ScenarioPhase.values().length);
         ScenarioPhase phase = ScenarioPhase.values()[idx];
@@ -86,7 +86,7 @@ public class RobotDummyDataService implements CommandLineRunner {
         return phase;
     }
 
-    private Flux<RobotLog> generateBatch(ScenarioPhase phase) {
+    Flux<RobotLog> generateBatch(ScenarioPhase phase) {
         LocalDateTime now = LocalDateTime.now();
         // FLOOD 시나리오에서는 로봇당 10개씩 생성하여 큐 포화 유도
         int perRobot = (phase == ScenarioPhase.FLOOD) ? 10 : 1;
