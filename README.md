@@ -263,3 +263,28 @@ const handleSseEvent = useCallback((log: RobotLog) => {
     });
 }, []);
 ```
+보내주신 두 사진은 프로젝트의 **인프라 구조**와 **배포 자동화 과정**을 아주 명확하게 보여주고 있네요\!
+
+README 맨 하단에 **[6. 🏗️ Infrastructure & CI/CD]** 섹션을 추가하여 구성하는 것을 추천드려요. 아래는 사진의 내용을 분석하여 간략하게 정리한 설명 문구입니다.
+
+-----
+
+## 6\. 🏗️ Infrastructure & CI/CD
+
+프로젝트의 안정적인 운영과 지속적인 통합/배포를 위해 구축한 시스템 구조입니다.
+
+### 6.1. System Architecture
+
+  * **Reverse Proxy**: **Nginx**(Port 8200)를 게이트웨이로 설정하여 보안을 강화하고 트래픽을 제어합니다.
+  * **Deployment**: 무중단 배포를 위해 **Blue-Green** 방식을 채택하였으며, Spring Boot와 Next.js가 각각의 컨테이너 환경에서 독립적으로 구동됩니다.
+  * **Analysis & DB**: 코드 품질 관리를 위한 **SonarQube**와 실시간 데이터 처리를 위한 **MySQL(R2DBC)** 환경을 구성하였습니다.
+<img width="942" height="662" alt="image" src="https://github.com/user-attachments/assets/d658ff7f-276a-431e-8fc9-d6e6a2b13202" />
+
+### 6.2. CI/CD Pipeline (Jenkins)
+
+  * **Static Analysis**: `gradlew test` 수행 후 **JaCoCo**를 통해 테스트 커버리지를 측정하며, **SonarQube Quality Gate**를 통과해야만 배포가 진행됩니다.
+  * **Parallel Build**: 빌드 시간을 최적화하기 위해 **Backend와 Frontend의 Docker 빌드를 병렬(Parallel)로 수행**합니다.
+  * **Automation**: `release` 브랜치 Push 시 **Checkout → Analysis → Build → Blue-Green Deploy**까지의 전 과정이 수동 개입 없이 자동으로 완료됩니다.
+
+<img width="1329" height="1241" alt="image" src="https://github.com/user-attachments/assets/5a94fb1a-d0cd-498b-b9b9-39d9dc973fc4" />
+
