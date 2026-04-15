@@ -55,7 +55,7 @@ pipeline {
                 echo "🚀 소나큐브의 합격(Pass)/불합격(Fail) 판정을 기다립니다..."
                 
                 // 최대 1분 대기, 기준 미달 시 파이프라인 즉시 중단
-                    waitForQualityGate abortPipeline: false
+                    waitForQualityGate abortPipeline: true
             }
         }
 
