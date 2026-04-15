@@ -1,5 +1,6 @@
 package com.example.controller;
 
+import com.example.dto.RobotLogEvent;
 import com.example.entity.RobotLog;
 import com.example.repository.RobotLogRepository;
 import com.example.service.RobotSseService;
@@ -18,8 +19,7 @@ import reactor.core.publisher.Flux;
 import java.time.LocalDateTime;
 import java.util.Arrays;
 
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.*;
 
 /**
  * RobotController 단위 테스트 (WebTestClient + Mockito)
@@ -94,5 +94,29 @@ class RobotControllerTest {
                 .jsonPath("$").isArray()
                 .jsonPath("$.length()").isEqualTo(1)
                 .jsonPath("$[0].robotId").isEqualTo("robot-1");
+    }
+
+    @Test
+    @DisplayName("GET /api/robots/{id}/stream - SSE 스트리밍이 정상적으로 시작되어야 한다")
+    void streamRobotLogsTest() {
+        // given
+        String robotId = "robot-1";
+        RobotLogEvent event = new RobotLogEvent(1L, robotId, 50.0, 1500L, 8000L, 2, 1, 1, 10.0, 20.0, 0.0, 0.5, 0.0, 0.0, "odom", "/odom", LocalDateTime.now());
+
+        Mockito.when(sseService.streamFor(eq(robotId)))
+               .thenReturn(Flux.just(event));
+
+        // when & then
+        webTestClient.get()
+                .uri("/api/robots/robot-1/stream?minPriority=3")
+                .accept(MediaType.TEXT_EVENT_STREAM)
+                .exchange()
+                .expectStatus().isOk()
+                .expectHeader().contentTypeCompatibleWith(MediaType.TEXT_EVENT_STREAM)
+                .returnResult(RobotLogEvent.class)
+                .getResponseBody()
+                .blockFirst(); // 첫 번째 이벤트 수신 대기
+
+        Mockito.verify(sseService).streamFor(robotId);
     }
 }
