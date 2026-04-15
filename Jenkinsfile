@@ -27,6 +27,39 @@ pipeline {
             }
         }
 
+        stage('Build & Static Analysis (SonarQube)') {
+            steps {
+                dir('back-pressure-practice') {
+                    echo "🚀 테스트 환경을 생략하고 소나큐브로 코드를 전송하여 정적 분석을 진행합니다..."
+                    
+                    // 권한 부여 및 빌드 (테스트 제외) - SonarQube 분석을 위해서는 클래스 파일이 필요합니다.
+                    sh 'chmod +x gradlew'
+                    sh './gradlew clean build -x test'
+                    
+                    // 젠킨스 시스템 설정에 등록된 'SonarQube' 서버 토큰을 자동으로 가져와 전송
+                    withSonarQubeEnv('SonarQube') { 
+                        sh '''
+                            ./gradlew sonar \
+                            -Dsonar.projectKey=sw_team_3_robot_backend \
+                            -Dsonar.projectName="Team 3 Robot Backend" \
+                            -Dsonar.java.binaries=build/classes
+                        '''
+                    }
+                }
+            }
+        }
+
+        stage('Quality Gate') {
+            steps {
+                echo "🚀 소나큐브의 합격(Pass)/불합격(Fail) 판정을 기다립니다..."
+                
+                // 최대 1분 대기, 기준 미달 시 파이프라인 즉시 중단
+                timeout(time: 1, unit: 'MINUTES') {
+                    waitForQualityGate abortPipeline: true
+                }
+            }
+        }
+
         stage('Docker Build') {
             parallel {
                 stage('Backend Build') {
