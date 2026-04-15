@@ -117,7 +117,7 @@ echo "  ✅ Nginx switched to ${TARGET_STACK}."
 
 # --- Stop Old Stack ---
 echo "[4/4] Stopping old [${OLD_STACK}] stack..."
-sleep 5
+sleep 60
 docker-compose -f "${COMPOSE_APP_FILE}" --project-name "robot_${OLD_STACK}" down || true
 
 echo ""

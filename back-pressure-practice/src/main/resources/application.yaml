@@ -16,9 +16,13 @@ spring:
       mode: always
       schema-locations: classpath:schema.sql
       data-locations: classpath:data.sql
+  lifecycle:
+    timeout-per-shutdown-phase: 60s
 
 server:
   port: 8080
+  shutdown: graceful
+
 
 management:
   endpoints:
