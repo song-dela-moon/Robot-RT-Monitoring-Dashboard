@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.List;
@@ -91,14 +92,22 @@ public class RobotController {
 
         log.info("[ROBOT-SSE] New subscriber robotId={} minPriority={}", robotId, minPriority);
 
-        return sseService.streamFor(robotId)
+        Flux<ServerSentEvent<RobotLogEvent>> logs = sseService.streamFor(robotId)
                 // priority 기준 필터링 (낮은 번호 = 높은 우선순위)
                 .filter(event -> event.priority() <= minPriority)
                 .map(event -> ServerSentEvent.<RobotLogEvent>builder()
                         .id(String.valueOf(event.id()))
                         .event("robot-log")
                         .data(event)
-                        .build())
+                        .build());
+
+        // 15초마다 빈 데이터(Heartbeat)를 쏘아 Nginx/브라우저 타임아웃 방지
+        Flux<ServerSentEvent<RobotLogEvent>> heartbeat = Flux.interval(Duration.ofSeconds(15))
+                .map(i -> ServerSentEvent.<RobotLogEvent>builder()
+                        .comment("keep-alive")
+                        .build());
+
+        return Flux.merge(logs, heartbeat)
                 .doOnCancel(() -> log.info("[ROBOT-SSE] Client disconnected robotId={}", robotId));
     }
 }
