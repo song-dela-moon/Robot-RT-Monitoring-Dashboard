@@ -27,6 +27,40 @@ pipeline {
             }
         }
 
+        stage('Build & Static Analysis (SonarQube)') {
+            steps {
+                dir('back-pressure-practice') {
+                    echo "🚀 테스트를 진행하고 성적표와 함께 소나큐브로 전송합니다..."
+                    
+                    sh 'chmod +x gradlew'
+                    
+                    // 테스트 실행 및 JaCoCo 리포트 생성
+                    sh './gradlew clean test jacocoTestReport'
+                    
+                    withSonarQubeEnv('SonarQube') { 
+                        sh '''
+                            ./gradlew sonar \
+                            -Dsonar.projectKey=sw_team_3_robot_backend \
+                            -Dsonar.projectName="Team 3 Robot Backend" \
+                            -Dsonar.java.binaries=build/classes \
+                            -Dsonar.coverage.jacoco.xmlReportPaths=build/reports/jacoco/test/jacocoTestReport.xml
+                        '''
+                    }
+                }
+            }
+        }
+
+        stage('Quality Gate') {
+            steps {
+                echo "🚀 소나큐브의 합격(Pass)/불합격(Fail) 판정을 기다립니다..."
+                
+                // 최대 1분 대기, 기준 미달 시 파이프라인 즉시 중단
+                timeout(time: 1, unit: 'MINUTES') {
+                    waitForQualityGate abortPipeline: true
+                }
+            }
+        }
+
         stage('Docker Build') {
             parallel {
                 stage('Backend Build') {
