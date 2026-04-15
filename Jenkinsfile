@@ -30,7 +30,7 @@ pipeline {
         stage('Build & Static Analysis (SonarQube)') {
             steps {
                 dir('back-pressure-practice') {
-                    echo "🚀 테스트를 진행하고 성적표와 함께 소나큐브로 전송합니다..."
+                    echo "🚀 테스트를 진행하고 성적표와 함께 소나큐브로 전송합니다."
                     
                     sh 'chmod +x gradlew'
                     
